@@ -16,6 +16,17 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@auth/*": ["src/auth/*"],
+      "@users/*": ["src/users/*"],
+      "@tenants/*": ["src/tenants/*"],
+      "@complaints/*": ["src/complaints/*"],
+      "@messages/*": ["src/messages/*"],
+      "@activities/*": ["src/activities/*"],
+      "@common/*": ["src/common/*"],
+      "@config/*": ["src/config/*"],
+      "@prisma-service/*": ["src/prisma/*"]
+    }
   }
 }

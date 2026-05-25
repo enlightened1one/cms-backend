@@ -1,13 +1,205 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// ─────────────────────────────────────────────────────────────
+// CCMS — Prisma Schema
+// Multi-tenant Customer Complaint Management System
+// ─────────────────────────────────────────────────────────────
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN  // Platform-level admin
+  TENANT_ADMIN // Organisation admin
+  AGENT        // Handles complaints
+  VENDOR       // Supplier/vendor responding to issues
+}
+
+enum ComplaintCategory {
+  WRONG_ITEM_DELIVERED
+  ITEM_DAMAGED
+  DIFFERENT_COLOR_OR_SIZE
+  MISSING_ITEM
+  OTHER
+}
+
+enum ComplaintStatus {
+  OPEN           // Newly submitted, unassigned
+  ASSIGNED       // Agent has been assigned
+  IN_PROGRESS    // Agent is actively working on it
+  PENDING_VENDOR // Awaiting vendor response
+  RESOLVED       // Agent marked resolved, awaiting customer confirmation
+  CLOSED         // Customer confirmed resolution
+  REOPENED       // Customer rejected resolution
+}
+
+enum ComplaintPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActivityAction {
+  COMPLAINT_CREATED
+  COMPLAINT_ASSIGNED
+  COMPLAINT_UNASSIGNED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  MESSAGE_SENT
+  INTERNAL_NOTE_ADDED
+  COMPLAINT_RESOLVED
+  COMPLAINT_CLOSED
+  COMPLAINT_REOPENED
+  USER_CREATED
+  USER_UPDATED
+  USER_DEACTIVATED
+  TENANT_CREATED
+  TENANT_UPDATED
+}
+
+// ─────────────────────────────────────────────────────────────
+// TENANT — Top-level organisation (one per logistics company)
+// ─────────────────────────────────────────────────────────────
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique               // URL-safe identifier e.g. "fastlogistics"
+  email     String   @unique
+  phone     String?
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  complaints Complaint[]
+  activities Activity[]
+
+  @@map("tenants")
+}
+
+// ─────────────────────────────────────────────────────────────
+// USER — Platform users (agents, admins, vendors)
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  tenantId     String
+  email        String
+  firstName    String
+  lastName     String
+  phone        String?
+  passwordHash String
+  role         Role     @default(AGENT)
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant             Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignedComplaints Complaint[] @relation("AssignedAgent")
+  createdComplaints  Complaint[] @relation("CreatedBy")
+  messages           Message[]
+  activities         Activity[]
+
+  @@unique([tenantId, email])  // Email unique per tenant
+  @@index([tenantId])
+  @@index([role])
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPLAINT — Core entity
+// ─────────────────────────────────────────────────────────────
+
+model Complaint {
+  id             String            @id @default(cuid())
+  complaintRef   String            @unique  // e.g. CCMS-2025-00001
+  tenantId       String
+  orderRef       String                     // e.g. ORD-9921
+  customerName   String
+  customerEmail  String
+  customerPhone  String?
+  category       ComplaintCategory
+  description    String
+  photos         String[]                   // Array of uploaded photo URLs
+  status         ComplaintStatus   @default(OPEN)
+  priority       ComplaintPriority @default(MEDIUM)
+  assignedToId   String?
+  createdById    String?
+  secureToken    String            @unique  // Token for customer tracking link
+  resolutionNote String?                    // Agent note on resolution
+  resolvedAt     DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignedTo User?      @relation("AssignedAgent", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdBy  User?      @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  messages   Message[]
+  activities Activity[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, assignedToId])
+  @@index([orderRef])
+  @@index([secureToken])
+  @@map("complaints")
+}
+
+// ─────────────────────────────────────────────────────────────
+// MESSAGE — Complaint messaging thread
+// ─────────────────────────────────────────────────────────────
+
+model Message {
+  id          String   @id @default(cuid())
+  complaintId String
+  senderId    String?                    // Null for customer (guest) messages
+  senderName  String                     // Always stored for display
+  senderEmail String?
+  content     String
+  isInternal  Boolean  @default(false)  // Internal notes hidden from customer
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  complaint Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  sender    User?     @relation(fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([complaintId])
+  @@map("messages")
+}
+
+// ─────────────────────────────────────────────────────────────
+// ACTIVITY — Immutable audit trail for every complaint event
+// ─────────────────────────────────────────────────────────────
+
+model Activity {
+  id          String         @id @default(cuid())
+  tenantId    String
+  complaintId String?
+  actorId     String?
+  actorName   String         // Denormalised for historical accuracy
+  action      ActivityAction
+  metadata    Json?          // e.g. { from: "OPEN", to: "IN_PROGRESS" }
+  createdAt   DateTime       @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  complaint Complaint? @relation(fields: [complaintId], references: [id], onDelete: SetNull)
+  actor     User?      @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([complaintId])
+  @@index([actorId])
+  @@map("activities")
 }
