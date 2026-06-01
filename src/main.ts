@@ -11,7 +11,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('app.port') ?? 3000;
+  const port = configService.get<number>('app.port') ?? 3001;
   const apiPrefix = configService.get<string>('app.apiPrefix') ?? 'api/v1';
   const allowedOrigins = configService.get<string[]>('app.allowedOrigins') ?? ['*'];
   const appName = configService.get<string>('app.name') ?? 'CCMS API';
@@ -19,7 +19,8 @@ async function bootstrap() {
 
   // ── CORS ──────────────────────────────────────────────────
   app.enableCors({
-    origin: nodeEnv === 'production' ? allowedOrigins : '*',
+    // origin: nodeEnv === 'production' ? allowedOrigins : '*',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
