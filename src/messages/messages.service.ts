@@ -1,17 +1,10 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ActivityAction, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { QueryMessagesDto } from './dto/query-messages.dto';
 import { buildResponse } from '../common/utils/response.util';
-import {
-  buildPaginationParams,
-  paginate,
-} from '../common/utils/pagination.util';
+import { buildPaginationParams, paginate } from '../common/utils/pagination.util';
 import { AuthenticatedUser } from '../common/interfaces/authenticated-request.interface';
 
 @Injectable()
@@ -38,7 +31,9 @@ export class MessagesService {
 
     // Only admins and tenant admins can post internal notes
     const canPostInternal =
-      actor.role === Role.SUPER_ADMIN || actor.role === Role.TENANT_ADMIN || actor.role === Role.AGENT;
+      actor.role === Role.SUPER_ADMIN ||
+      actor.role === Role.TENANT_ADMIN ||
+      actor.role === Role.AGENT;
 
     if (dto.isInternal && !canPostInternal) {
       throw new ForbiddenException('Only agents and admins can post internal notes');
@@ -67,9 +62,7 @@ export class MessagesService {
         complaintId,
         actorId: actor.id,
         actorName: `${actor.firstName} ${actor.lastName}`,
-        action: dto.isInternal
-          ? ActivityAction.INTERNAL_NOTE_ADDED
-          : ActivityAction.MESSAGE_SENT,
+        action: dto.isInternal ? ActivityAction.INTERNAL_NOTE_ADDED : ActivityAction.MESSAGE_SENT,
         metadata: {
           messageId: message.id,
           isInternal: message.isInternal,

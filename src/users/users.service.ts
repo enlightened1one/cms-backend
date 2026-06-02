@@ -11,10 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { hashPassword } from '../common/utils/hash.util';
 import { buildResponse } from '../common/utils/response.util';
-import {
-  buildPaginationParams,
-  paginate,
-} from '../common/utils/pagination.util';
+import { buildPaginationParams, paginate } from '../common/utils/pagination.util';
 import { AuthenticatedUser } from '../common/interfaces/authenticated-request.interface';
 
 @Injectable()
@@ -25,11 +22,7 @@ export class UsersService {
   // CREATE
   // ─────────────────────────────────────────────────────────
 
-  async create(
-    tenantId: string,
-    dto: CreateUserDto,
-    actor: AuthenticatedUser,
-  ) {
+  async create(tenantId: string, dto: CreateUserDto, actor: AuthenticatedUser) {
     // Prevent non-super-admins from creating SUPER_ADMIN accounts
     if (dto.role === Role.SUPER_ADMIN && actor.role !== Role.SUPER_ADMIN) {
       throw new ForbiddenException('Only SUPER_ADMIN can create another SUPER_ADMIN');
@@ -130,12 +123,7 @@ export class UsersService {
   // UPDATE
   // ─────────────────────────────────────────────────────────
 
-  async update(
-    tenantId: string,
-    userId: string,
-    dto: UpdateUserDto,
-    actor: AuthenticatedUser,
-  ) {
+  async update(tenantId: string, userId: string, dto: UpdateUserDto, actor: AuthenticatedUser) {
     await this.assertExists(tenantId, userId);
 
     // Prevent role escalation to SUPER_ADMIN by non-super-admins
@@ -161,9 +149,8 @@ export class UsersService {
       select: this.safeSelect(),
     });
 
-    const action = dto.isActive === false
-      ? ActivityAction.USER_DEACTIVATED
-      : ActivityAction.USER_UPDATED;
+    const action =
+      dto.isActive === false ? ActivityAction.USER_DEACTIVATED : ActivityAction.USER_UPDATED;
 
     await this.prisma.activity.create({
       data: {

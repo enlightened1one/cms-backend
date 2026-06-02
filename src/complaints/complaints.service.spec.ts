@@ -54,10 +54,7 @@ describe('ComplaintsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ComplaintsService,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [ComplaintsService, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     service = module.get<ComplaintsService>(ComplaintsService);
@@ -100,7 +97,12 @@ describe('ComplaintsService', () => {
       });
 
       await expect(
-        service.updateStatus('tenant-1', 'complaint-1', { status: ComplaintStatus.CLOSED }, mockActor),
+        service.updateStatus(
+          'tenant-1',
+          'complaint-1',
+          { status: ComplaintStatus.CLOSED },
+          mockActor,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -163,10 +165,15 @@ describe('ComplaintsService', () => {
       mockPrisma.user.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.assign('tenant-1', 'complaint-1', { agentId: 'bad-agent' }, {
-          ...mockActor,
-          role: Role.TENANT_ADMIN,
-        }),
+        service.assign(
+          'tenant-1',
+          'complaint-1',
+          { agentId: 'bad-agent' },
+          {
+            ...mockActor,
+            role: Role.TENANT_ADMIN,
+          },
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });

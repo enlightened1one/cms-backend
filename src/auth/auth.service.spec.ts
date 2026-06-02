@@ -91,9 +91,9 @@ describe('AuthService', () => {
   describe('login', () => {
     it('throws UnauthorizedException for unknown email', async () => {
       mockPrisma.user.findFirst.mockResolvedValue(null);
-      await expect(
-        service.login({ email: 'nobody@test.com', password: 'any' }),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.login({ email: 'nobody@test.com', password: 'any' })).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('throws UnauthorizedException for wrong password', async () => {
@@ -103,9 +103,9 @@ describe('AuthService', () => {
         isActive: true,
       });
       jest.spyOn(hashUtil, 'comparePassword').mockResolvedValue(false);
-      await expect(
-        service.login({ email: 'agent@test.com', password: 'wrong' }),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.login({ email: 'agent@test.com', password: 'wrong' })).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

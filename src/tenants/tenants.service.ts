@@ -1,16 +1,9 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { buildResponse } from '../common/utils/response.util';
-import {
-  buildPaginationParams,
-  paginate,
-} from '../common/utils/pagination.util';
+import { buildPaginationParams, paginate } from '../common/utils/pagination.util';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { ActivityAction } from '@prisma/client';
 
@@ -91,12 +84,7 @@ export class TenantsService {
   // UPDATE
   // ─────────────────────────────────────────────────────────
 
-  async update(
-    id: string,
-    dto: UpdateTenantDto,
-    actorId: string,
-    actorName: string,
-  ) {
+  async update(id: string, dto: UpdateTenantDto, actorId: string, actorName: string) {
     await this.assertExists(id);
 
     const tenant = await this.prisma.tenant.update({

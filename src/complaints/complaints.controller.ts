@@ -1,20 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { ComplaintsService } from './complaints.service';
 import { CreateComplaintDto } from './dto/create-complaint.dto';
@@ -52,7 +37,8 @@ export class ComplaintsController {
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN, Role.AGENT)
   @ApiOperation({
     summary: 'Create a new complaint',
-    description: 'Agent submits a complaint on behalf of a customer. Generates a unique complaint reference and secure tracking token.',
+    description:
+      'Agent submits a complaint on behalf of a customer. Generates a unique complaint reference and secure tracking token.',
   })
   @ApiResponse({ status: 201, description: 'Complaint created with tracking token' })
   create(
@@ -67,12 +53,10 @@ export class ComplaintsController {
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN, Role.AGENT, Role.VENDOR)
   @ApiOperation({
     summary: 'List complaints (paginated + filterable)',
-    description: 'Supports filtering by status, category, priority, assignee, and free-text search across ref, order, customer name/email.',
+    description:
+      'Supports filtering by status, category, priority, assignee, and free-text search across ref, order, customer name/email.',
   })
-  findAll(
-    @TenantId() tenantId: string,
-    @Query() query: QueryComplaintsDto,
-  ) {
+  findAll(@TenantId() tenantId: string, @Query() query: QueryComplaintsDto) {
     return this.complaintsService.findAll(tenantId, query);
   }
 
@@ -89,10 +73,7 @@ export class ComplaintsController {
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN, Role.AGENT, Role.VENDOR)
   @ApiOperation({ summary: 'Get a single complaint by ID' })
   @ApiParam({ name: 'id', description: 'Complaint CUID' })
-  findOne(
-    @TenantId() tenantId: string,
-    @Param('id') id: string,
-  ) {
+  findOne(@TenantId() tenantId: string, @Param('id') id: string) {
     return this.complaintsService.findOne(tenantId, id);
   }
 
@@ -131,8 +112,7 @@ export class ComplaintsController {
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN)
   @ApiOperation({
     summary: 'Assign complaint to an agent',
-    description:
-      'Agent must belong to the same tenant. Auto-advances status from OPEN → ASSIGNED.',
+    description: 'Agent must belong to the same tenant. Auto-advances status from OPEN → ASSIGNED.',
   })
   @ApiParam({ name: 'id', description: 'Complaint CUID' })
   assign(
@@ -152,7 +132,8 @@ export class ComplaintsController {
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN, Role.AGENT, Role.VENDOR)
   @ApiOperation({
     summary: 'Get all messages for a complaint',
-    description: 'Returns the full message thread. Internal notes are filtered for non-admin roles.',
+    description:
+      'Returns the full message thread. Internal notes are filtered for non-admin roles.',
   })
   @ApiParam({ name: 'id', description: 'Complaint CUID' })
   getMessages(
@@ -168,7 +149,8 @@ export class ComplaintsController {
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN, Role.AGENT, Role.VENDOR)
   @ApiOperation({
     summary: 'Post a message to a complaint thread',
-    description: 'Supports internal notes (hidden from customer) and public messages visible to all parties.',
+    description:
+      'Supports internal notes (hidden from customer) and public messages visible to all parties.',
   })
   @ApiParam({ name: 'id', description: 'Complaint CUID' })
   createMessage(
@@ -188,7 +170,8 @@ export class ComplaintsController {
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN, Role.AGENT)
   @ApiOperation({
     summary: 'Get the activity timeline for a complaint',
-    description: 'Immutable audit log of every action taken on this complaint, in chronological order.',
+    description:
+      'Immutable audit log of every action taken on this complaint, in chronological order.',
   })
   @ApiParam({ name: 'id', description: 'Complaint CUID' })
   getActivities(

@@ -1,20 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -49,10 +34,7 @@ export class UsersController {
   @Get()
   @Roles(Role.SUPER_ADMIN, Role.TENANT_ADMIN)
   @ApiOperation({ summary: 'List all users for the authenticated tenant (paginated)' })
-  findAll(
-    @TenantId() tenantId: string,
-    @Query() query: QueryUsersDto,
-  ) {
+  findAll(@TenantId() tenantId: string, @Query() query: QueryUsersDto) {
     return this.usersService.findAll(tenantId, query);
   }
 
