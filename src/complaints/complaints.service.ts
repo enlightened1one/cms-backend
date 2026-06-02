@@ -4,27 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  ActivityAction,
-  ComplaintStatus,
-  Prisma,
-  Role,
-} from '@prisma/client';
+import { ActivityAction, ComplaintStatus, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateComplaintDto } from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { AssignComplaintDto } from './dto/assign-complaint.dto';
 import { QueryComplaintsDto } from './dto/query-complaints.dto';
-import {
-  generateComplaintRef,
-  generateSecureToken,
-} from '../common/utils/token.util';
+import { generateComplaintRef, generateSecureToken } from '../common/utils/token.util';
 import { buildResponse } from '../common/utils/response.util';
-import {
-  buildPaginationParams,
-  paginate,
-} from '../common/utils/pagination.util';
+import { buildPaginationParams, paginate } from '../common/utils/pagination.util';
 import { AuthenticatedUser } from '../common/interfaces/authenticated-request.interface';
 
 /** Valid status transitions enforced by the service layer */
@@ -50,11 +39,7 @@ export class ComplaintsService {
   // CREATE
   // ─────────────────────────────────────────────────────────
 
-  async create(
-    tenantId: string,
-    dto: CreateComplaintDto,
-    actor: AuthenticatedUser,
-  ) {
+  async create(tenantId: string, dto: CreateComplaintDto, actor: AuthenticatedUser) {
     const complaintRef = generateComplaintRef();
     const secureToken = generateSecureToken();
 
@@ -103,9 +88,7 @@ export class ComplaintsService {
     const { skip, take } = buildPaginationParams(query);
 
     const allowedSortFields = ['createdAt', 'updatedAt', 'priority', 'status'];
-    const sortBy = allowedSortFields.includes(query.sortBy)
-      ? query.sortBy
-      : 'createdAt';
+    const sortBy = allowedSortFields.includes(query.sortBy) ? query.sortBy : 'createdAt';
     const sortOrder = query.sortOrder === 'asc' ? 'asc' : 'desc';
 
     const where: Prisma.ComplaintWhereInput = {
@@ -163,12 +146,7 @@ export class ComplaintsService {
   // UPDATE (general fields)
   // ─────────────────────────────────────────────────────────
 
-  async update(
-    tenantId: string,
-    id: string,
-    dto: UpdateComplaintDto,
-    actor: AuthenticatedUser,
-  ) {
+  async update(tenantId: string, id: string, dto: UpdateComplaintDto, actor: AuthenticatedUser) {
     const existing = await this.assertExists(tenantId, id);
 
     // Only assigned agent, tenant admin, or super admin can update
@@ -205,12 +183,7 @@ export class ComplaintsService {
   // UPDATE STATUS — enforces state machine transitions
   // ─────────────────────────────────────────────────────────
 
-  async updateStatus(
-    tenantId: string,
-    id: string,
-    dto: UpdateStatusDto,
-    actor: AuthenticatedUser,
-  ) {
+  async updateStatus(tenantId: string, id: string, dto: UpdateStatusDto, actor: AuthenticatedUser) {
     const existing = await this.assertExists(tenantId, id);
 
     // Validate transition is allowed
@@ -218,7 +191,7 @@ export class ComplaintsService {
     if (!allowedNext.includes(dto.status)) {
       throw new BadRequestException(
         `Cannot transition from "${existing.status}" to "${dto.status}". ` +
-        `Allowed transitions: ${allowedNext.length ? allowedNext.join(', ') : 'none (terminal state)'}`,
+          `Allowed transitions: ${allowedNext.length ? allowedNext.join(', ') : 'none (terminal state)'}`,
       );
     }
 
@@ -250,10 +223,10 @@ export class ComplaintsService {
       dto.status === ComplaintStatus.RESOLVED
         ? ActivityAction.COMPLAINT_RESOLVED
         : dto.status === ComplaintStatus.CLOSED
-        ? ActivityAction.COMPLAINT_CLOSED
-        : dto.status === ComplaintStatus.REOPENED
-        ? ActivityAction.COMPLAINT_REOPENED
-        : ActivityAction.STATUS_CHANGED;
+          ? ActivityAction.COMPLAINT_CLOSED
+          : dto.status === ComplaintStatus.REOPENED
+            ? ActivityAction.COMPLAINT_REOPENED
+            : ActivityAction.STATUS_CHANGED;
 
     await this.prisma.activity.create({
       data: {
@@ -277,12 +250,7 @@ export class ComplaintsService {
   // ASSIGN
   // ─────────────────────────────────────────────────────────
 
-  async assign(
-    tenantId: string,
-    id: string,
-    dto: AssignComplaintDto,
-    actor: AuthenticatedUser,
-  ) {
+  async assign(tenantId: string, id: string, dto: AssignComplaintDto, actor: AuthenticatedUser) {
     const existing = await this.assertExists(tenantId, id);
 
     // Verify the agent belongs to the same tenant
@@ -330,16 +298,15 @@ export class ComplaintsService {
   // ─────────────────────────────────────────────────────────
 
   async getStats(tenantId: string) {
-    const [total, open, assigned, inProgress, resolved, closed, reopened] =
-      await Promise.all([
-        this.prisma.complaint.count({ where: { tenantId } }),
-        this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.OPEN } }),
-        this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.ASSIGNED } }),
-        this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.IN_PROGRESS } }),
-        this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.RESOLVED } }),
-        this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.CLOSED } }),
-        this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.REOPENED } }),
-      ]);
+    const [total, open, assigned, inProgress, resolved, closed, reopened] = await Promise.all([
+      this.prisma.complaint.count({ where: { tenantId } }),
+      this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.OPEN } }),
+      this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.ASSIGNED } }),
+      this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.IN_PROGRESS } }),
+      this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.RESOLVED } }),
+      this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.CLOSED } }),
+      this.prisma.complaint.count({ where: { tenantId, status: ComplaintStatus.REOPENED } }),
+    ]);
 
     const resolutionRate = total > 0 ? Math.round((closed / total) * 100) : 0;
 
@@ -367,14 +334,8 @@ export class ComplaintsService {
     return complaint;
   }
 
-  private assertCanModify(
-    complaint: any,
-    actor: AuthenticatedUser,
-  ): void {
-    if (
-      actor.role === Role.SUPER_ADMIN ||
-      actor.role === Role.TENANT_ADMIN
-    ) return;
+  private assertCanModify(complaint: any, actor: AuthenticatedUser): void {
+    if (actor.role === Role.SUPER_ADMIN || actor.role === Role.TENANT_ADMIN) return;
 
     if (complaint.assignedToId !== actor.id) {
       throw new ForbiddenException(

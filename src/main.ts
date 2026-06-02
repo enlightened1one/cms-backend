@@ -48,14 +48,14 @@ async function bootstrap() {
       .setTitle(appName)
       .setDescription(
         `## CCMS — Customer Complaint Management System\n\n` +
-        `Multi-tenant SaaS backend for managing logistics complaints end-to-end.\n\n` +
-        `### Authentication\n` +
-        `All endpoints (except \`/auth/register\` and \`/auth/login\`) require a Bearer JWT token.\n\n` +
-        `### Tenant Isolation\n` +
-        `All data is scoped to the authenticated user's tenant. Agents can only see complaints within their own organisation.\n\n` +
-        `### Status Machine\n` +
-        `OPEN → ASSIGNED → IN_PROGRESS → PENDING_VENDOR → RESOLVED → CLOSED\n` +
-        `RESOLVED → REOPENED → IN_PROGRESS`,
+          `Multi-tenant SaaS backend for managing logistics complaints end-to-end.\n\n` +
+          `### Authentication\n` +
+          `All endpoints (except \`/auth/register\` and \`/auth/login\`) require a Bearer JWT token.\n\n` +
+          `### Tenant Isolation\n` +
+          `All data is scoped to the authenticated user's tenant. Agents can only see complaints within their own organisation.\n\n` +
+          `### Status Machine\n` +
+          `OPEN → ASSIGNED → IN_PROGRESS → PENDING_VENDOR → RESOLVED → CLOSED\n` +
+          `RESOLVED → REOPENED → IN_PROGRESS`,
       )
       .setVersion('1.0')
       .addBearerAuth(

@@ -1,20 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
@@ -36,15 +21,8 @@ export class TenantsController {
   @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a new tenant [SUPER_ADMIN only]' })
   @ApiResponse({ status: 201, description: 'Tenant created' })
-  create(
-    @Body() dto: CreateTenantDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.tenantsService.create(
-      dto,
-      user.id,
-      `${user.firstName} ${user.lastName}`,
-    );
+  create(@Body() dto: CreateTenantDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.tenantsService.create(dto, user.id, `${user.firstName} ${user.lastName}`);
   }
 
   @Get()
@@ -71,11 +49,6 @@ export class TenantsController {
     @Body() dto: UpdateTenantDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.tenantsService.update(
-      id,
-      dto,
-      user.id,
-      `${user.firstName} ${user.lastName}`,
-    );
+    return this.tenantsService.update(id, dto, user.id, `${user.firstName} ${user.lastName}`);
   }
 }
