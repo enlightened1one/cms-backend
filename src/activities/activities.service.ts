@@ -3,10 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueryActivitiesDto } from './dto/query-activities.dto';
 import { buildResponse } from '../common/utils/response.util';
-import {
-  buildPaginationParams,
-  paginate,
-} from '../common/utils/pagination.util';
+import { buildPaginationParams, paginate } from '../common/utils/pagination.util';
 
 @Injectable()
 export class ActivitiesService {
@@ -16,11 +13,7 @@ export class ActivitiesService {
   // GET ACTIVITY TIMELINE FOR A COMPLAINT
   // ─────────────────────────────────────────────────────────
 
-  async findByComplaint(
-    tenantId: string,
-    complaintId: string,
-    query: QueryActivitiesDto,
-  ) {
+  async findByComplaint(tenantId: string, complaintId: string, query: QueryActivitiesDto) {
     // Verify complaint belongs to tenant
     const complaint = await this.prisma.complaint.findFirst({
       where: { id: complaintId, tenantId },
@@ -51,10 +44,7 @@ export class ActivitiesService {
       this.prisma.activity.count({ where }),
     ]);
 
-    return buildResponse(
-      'Activity timeline fetched',
-      paginate(activities, total, query),
-    );
+    return buildResponse('Activity timeline fetched', paginate(activities, total, query));
   }
 
   // ─────────────────────────────────────────────────────────
@@ -88,9 +78,6 @@ export class ActivitiesService {
       this.prisma.activity.count({ where }),
     ]);
 
-    return buildResponse(
-      'Tenant activities fetched',
-      paginate(activities, total, query),
-    );
+    return buildResponse('Tenant activities fetched', paginate(activities, total, query));
   }
 }

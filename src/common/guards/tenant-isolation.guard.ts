@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Role } from '@prisma/client';
 
 /**
@@ -23,13 +18,10 @@ export class TenantIsolationGuard implements CanActivate {
     // SUPER_ADMIN can access any tenant
     if (user.role === Role.SUPER_ADMIN) return true;
 
-    const requestedTenantId =
-      request.params?.tenantId || request.body?.tenantId;
+    const requestedTenantId = request.params?.tenantId || request.body?.tenantId;
 
     if (requestedTenantId && requestedTenantId !== user.tenantId) {
-      throw new ForbiddenException(
-        'You do not have permission to access another tenant\'s data.',
-      );
+      throw new ForbiddenException("You do not have permission to access another tenant's data.");
     }
 
     return true;

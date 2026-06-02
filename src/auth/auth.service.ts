@@ -133,12 +133,7 @@ export class AuthService {
   // PRIVATE HELPERS
   // ─────────────────────────────────────────────────────────
 
-  private generateToken(user: {
-    id: string;
-    email: string;
-    role: Role;
-    tenantId: string;
-  }): string {
+  private generateToken(user: { id: string; email: string; role: Role; tenantId: string }): string {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
