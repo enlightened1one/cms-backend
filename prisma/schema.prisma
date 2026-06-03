@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────────────────────
-// CCMS — Prisma Schema
-// Multi-tenant Customer Complaint Management System
-// ─────────────────────────────────────────────────────────────
 
 generator client {
   provider = "prisma-client-js"
