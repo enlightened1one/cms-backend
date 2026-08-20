@@ -1,5 +1,4 @@
-import { randomBytes } from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
+import { randomBytes, randomUUID } from 'crypto';
 
 /**
  * Generates a cryptographically secure random token for customer tracking links.
@@ -42,4 +41,4 @@ export function buildTrackingUrl(
   return `${frontendUrl}/track/${orderRef}/${secureToken}`;
 }
 
-export { uuidv4 };
+export const uuidv4 = randomUUID;
