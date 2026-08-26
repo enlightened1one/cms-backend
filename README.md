@@ -1,4 +1,5 @@
 # CCMS — Customer Complaint Management System
+
 ### Multi-Tenant SaaS Backend · NestJS · PostgreSQL · Prisma · JWT
 
 ---
@@ -22,6 +23,8 @@
 
 ---
 
+
+
 ## Overview
 
 CCMS is a production-ready multi-tenant backend for managing customer complaints in logistics companies. Every complaint is scoped to a **tenant** (organisation), assigned to an **agent**, tracked through a strict **status machine**, and logged to an immutable **activity timeline**.
@@ -35,6 +38,8 @@ Key principles from the PRD:
 - Full **audit trail** on every complaint event
 
 ---
+
+
 
 ## Architecture
 
@@ -72,6 +77,7 @@ Key principles from the PRD:
 ```
 
 **Design principles:**
+
 - **Thin controllers** — no business logic; controllers only validate input and delegate to services
 - **Services** own all business rules, authorization checks, and database access
 - **Global guards** enforce JWT + RBAC on every request
@@ -81,22 +87,28 @@ Key principles from the PRD:
 
 ---
 
+
+
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | NestJS 10 |
-| Language | TypeScript 5 |
-| ORM | Prisma 5 |
-| Database | PostgreSQL (NeonDB) |
-| Auth | JWT + Passport |
-| Password hashing | bcrypt |
-| Validation | class-validator + class-transformer |
-| Documentation | Swagger / OpenAPI 3 |
-| Config | @nestjs/config + Joi |
-| Testing | Jest |
+
+| Layer            | Technology                          |
+| ---------------- | ----------------------------------- |
+| Framework        | NestJS 10                           |
+| Language         | TypeScript 5                        |
+| ORM              | Prisma 5                            |
+| Database         | PostgreSQL (NeonDB)                 |
+| Auth             | JWT + Passport                      |
+| Password hashing | bcrypt                              |
+| Validation       | class-validator + class-transformer |
+| Documentation    | Swagger / OpenAPI 3                 |
+| Config           | @nestjs/config + Joi                |
+| Testing          | Jest                                |
+
 
 ---
+
+
 
 ## Project Structure
 
@@ -216,6 +228,8 @@ ccms-backend/
 
 ---
 
+
+
 ## Database Schema
 
 ```
@@ -235,6 +249,8 @@ Complaint (1) ──── (N) Activity
 **Tenant isolation** is enforced at every query level using `tenantId` as a mandatory `WHERE` clause filter. No cross-tenant data leakage is possible through normal service calls.
 
 ---
+
+
 
 ## Status Machine
 
@@ -266,6 +282,7 @@ Complaint (1) ──── (N) Activity
 ```
 
 **Rules:**
+
 - Transitions outside the allowed graph return `400 Bad Request`
 - `RESOLVED` requires a `resolutionNote` (agent's explanation to customer)
 - `CLOSED` is terminal — no further transitions allowed
@@ -273,39 +290,49 @@ Complaint (1) ──── (N) Activity
 
 ---
 
+
+
 ## Role Permissions
 
-| Action | SUPER_ADMIN | TENANT_ADMIN | AGENT | VENDOR |
-|--------|-------------|--------------|-------|--------|
-| Create tenant | ✅ | ❌ | ❌ | ❌ |
-| List tenants | ✅ | ❌ | ❌ | ❌ |
-| Create user | ✅ | ✅ | ❌ | ❌ |
-| List users | ✅ | ✅ | ❌ | ❌ |
-| Update user | ✅ | ✅ | ❌ | ❌ |
-| Create complaint | ✅ | ✅ | ✅ | ❌ |
-| List complaints | ✅ | ✅ | ✅ | ✅ |
-| Get complaint | ✅ | ✅ | ✅ | ✅ |
-| Update complaint | ✅ | ✅ | ✅* | ❌ |
-| Update status | ✅ | ✅ | ✅* | ❌ |
-| Assign complaint | ✅ | ✅ | ❌ | ❌ |
-| Post message | ✅ | ✅ | ✅ | ✅ |
-| Post internal note | ✅ | ✅ | ✅ | ❌ |
-| View internal notes | ✅ | ✅ | ✅ | ❌ |
-| View activities | ✅ | ✅ | ✅ | ❌ |
-| View tenant audit log | ✅ | ✅ | ❌ | ❌ |
-| Complaint stats | ✅ | ✅ | ❌ | ❌ |
 
-\* Agents can only update/change status on complaints assigned to them.
+| Action                | SUPER_ADMIN | TENANT_ADMIN | AGENT | VENDOR |
+| --------------------- | ----------- | ------------ | ----- | ------ |
+| Create tenant         | ✅           | ❌            | ❌     | ❌      |
+| List tenants          | ✅           | ❌            | ❌     | ❌      |
+| Create user           | ✅           | ✅            | ❌     | ❌      |
+| List users            | ✅           | ✅            | ❌     | ❌      |
+| Update user           | ✅           | ✅            | ❌     | ❌      |
+| Create complaint      | ✅           | ✅            | ✅     | ❌      |
+| List complaints       | ✅           | ✅            | ✅     | ✅      |
+| Get complaint         | ✅           | ✅            | ✅     | ✅      |
+| Update complaint      | ✅           | ✅            | ✅*    | ❌      |
+| Update status         | ✅           | ✅            | ✅*    | ❌      |
+| Assign complaint      | ✅           | ✅            | ❌     | ❌      |
+| Post message          | ✅           | ✅            | ✅     | ✅      |
+| Post internal note    | ✅           | ✅            | ✅     | ❌      |
+| View internal notes   | ✅           | ✅            | ✅     | ❌      |
+| View activities       | ✅           | ✅            | ✅     | ❌      |
+| View tenant audit log | ✅           | ✅            | ❌     | ❌      |
+| Complaint stats       | ✅           | ✅            | ❌     | ❌      |
+
+
+ Agents can only update/change status on complaints assigned to them.
 
 ---
 
+
+
 ## Quick Start
+
+
 
 ### Prerequisites
 
 - Node.js >= 18
 - pnpm >= 9
 - A PostgreSQL database (NeonDB recommended — free tier available at neon.tech)
+
+
 
 ### 1. Clone and install
 
@@ -314,6 +341,8 @@ git clone https://github.com/your-org/ccms-backend.git
 cd ccms-backend
 pnpm install
 ```
+
+
 
 ### 2. Configure environment
 
@@ -328,11 +357,15 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
 JWT_SECRET="your-minimum-32-character-secret-key"
 ```
 
+
+
 ### 3. Generate Prisma client
 
 ```bash
 pnpm run prisma:generate
 ```
+
+
 
 ### 4. Run database migrations
 
@@ -344,6 +377,8 @@ pnpm run prisma:migrate:dev
 pnpm run prisma:migrate:deploy
 ```
 
+
+
 ### 5. Seed the database
 
 ```bash
@@ -351,8 +386,11 @@ pnpm run prisma:seed
 ```
 
 This creates:
+
 - `superadmin@ccms.app` / `Admin@1234` — SUPER_ADMIN
 - `admin@fastlogistics.com` / `TenantAdmin@1234` — TENANT_ADMIN (demo tenant)
+
+
 
 ### 6. Start the server
 
@@ -365,6 +403,8 @@ pnpm run build
 pnpm run start:prod
 ```
 
+
+
 ### 7. Open Swagger docs
 
 ```
@@ -373,20 +413,26 @@ http://localhost:3000/api/v1/docs
 
 ---
 
+
+
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `NODE_ENV` | No | `development` | `development` \| `production` \| `test` |
-| `PORT` | No | `3000` | HTTP port |
-| `DATABASE_URL` | **Yes** | — | PostgreSQL connection string |
-| `JWT_SECRET` | **Yes** | — | Min 32 characters. Use a strong random string |
-| `JWT_EXPIRES_IN` | No | `7d` | Token lifetime (e.g. `1d`, `7d`, `30d`) |
-| `BCRYPT_SALT_ROUNDS` | No | `12` | Higher = more secure but slower |
-| `FRONTEND_URL` | No | `http://localhost:5173` | Used for building customer tracking URLs |
-| `ALLOWED_ORIGINS` | No | `http://localhost:3000` | Comma-separated CORS origins |
+
+| Variable             | Required | Default                 | Description                                   |
+| -------------------- | -------- | ----------------------- | --------------------------------------------- |
+| `NODE_ENV`           | No       | `development`           | `development` | `production` | `test`         |
+| `PORT`               | No       | `3000`                  | HTTP port                                     |
+| `DATABASE_URL`       | **Yes**  | —                       | PostgreSQL connection string                  |
+| `JWT_SECRET`         | **Yes**  | —                       | Min 32 characters. Use a strong random string |
+| `JWT_EXPIRES_IN`     | No       | `7d`                    | Token lifetime (e.g. `1d`, `7d`, `30d`)       |
+| `BCRYPT_SALT_ROUNDS` | No       | `12`                    | Higher = more secure but slower               |
+| `FRONTEND_URL`       | No       | `http://localhost:5173` | Used for building customer tracking URLs      |
+| `ALLOWED_ORIGINS`    | No       | `http://localhost:3000` | Comma-separated CORS origins                  |
+
 
 ---
+
+
 
 ## API Reference
 
@@ -394,13 +440,16 @@ All endpoints are prefixed with `/api/v1`.
 
 ### Authentication
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `POST` | `/auth/register` | Public | Register a new user |
-| `POST` | `/auth/login` | Public | Login and receive JWT |
-| `GET` | `/auth/me` | JWT | Get authenticated user profile |
+
+| Method | Endpoint         | Auth   | Description                    |
+| ------ | ---------------- | ------ | ------------------------------ |
+| `POST` | `/auth/register` | Public | Register a new user            |
+| `POST` | `/auth/login`    | Public | Login and receive JWT          |
+| `GET`  | `/auth/me`       | JWT    | Get authenticated user profile |
+
 
 **Login response:**
+
 ```json
 {
   "success": true,
@@ -413,57 +462,72 @@ All endpoints are prefixed with `/api/v1`.
 }
 ```
 
+
+
 ### Users
 
-| Method | Endpoint | Roles | Description |
-|--------|----------|-------|-------------|
-| `POST` | `/users` | TENANT_ADMIN+ | Create user in tenant |
-| `GET` | `/users` | TENANT_ADMIN+ | List users (paginated, filterable) |
-| `GET` | `/users/:id` | AGENT+ | Get user by ID |
-| `PATCH` | `/users/:id` | TENANT_ADMIN+ | Update user / deactivate |
 
-**Query params for `GET /users`:**
+| Method  | Endpoint     | Roles         | Description                        |
+| ------- | ------------ | ------------- | ---------------------------------- |
+| `POST`  | `/users`     | TENANT_ADMIN+ | Create user in tenant              |
+| `GET`   | `/users`     | TENANT_ADMIN+ | List users (paginated, filterable) |
+| `GET`   | `/users/:id` | AGENT+        | Get user by ID                     |
+| `PATCH` | `/users/:id` | TENANT_ADMIN+ | Update user / deactivate           |
+
+
+**Query params for** `GET /users`**:**
+
 - `page`, `limit` — pagination
 - `search` — searches name and email
 - `role` — filter by role enum
 - `isActive` — `true` or `false`
 
+
+
 ### Tenants
 
-| Method | Endpoint | Roles | Description |
-|--------|----------|-------|-------------|
-| `POST` | `/tenants` | SUPER_ADMIN | Create tenant |
-| `GET` | `/tenants` | SUPER_ADMIN | List all tenants |
-| `GET` | `/tenants/:id` | SUPER_ADMIN, TENANT_ADMIN | Get tenant |
-| `PATCH` | `/tenants/:id` | SUPER_ADMIN, TENANT_ADMIN | Update tenant |
+
+| Method  | Endpoint       | Roles                     | Description      |
+| ------- | -------------- | ------------------------- | ---------------- |
+| `POST`  | `/tenants`     | SUPER_ADMIN               | Create tenant    |
+| `GET`   | `/tenants`     | SUPER_ADMIN               | List all tenants |
+| `GET`   | `/tenants/:id` | SUPER_ADMIN, TENANT_ADMIN | Get tenant       |
+| `PATCH` | `/tenants/:id` | SUPER_ADMIN, TENANT_ADMIN | Update tenant    |
+
+
+
 
 ### Complaints
 
-| Method | Endpoint | Roles | Description |
-|--------|----------|-------|-------------|
-| `POST` | `/complaints` | AGENT+ | Create complaint for a customer |
-| `GET` | `/complaints` | VENDOR+ | List complaints (paginated + filtered) |
-| `GET` | `/complaints/stats` | TENANT_ADMIN+ | Dashboard stats |
-| `GET` | `/complaints/:id` | VENDOR+ | Get complaint detail |
-| `PATCH` | `/complaints/:id` | AGENT+ | Update category/description/photos |
-| `PATCH` | `/complaints/:id/status` | AGENT+ | Transition complaint status |
-| `PATCH` | `/complaints/:id/assign` | TENANT_ADMIN+ | Assign to an agent |
-| `GET` | `/complaints/:id/messages` | VENDOR+ | Get message thread |
-| `POST` | `/complaints/:id/messages` | VENDOR+ | Post a message |
-| `GET` | `/complaints/:id/activities` | AGENT+ | Get activity timeline |
 
-**Query params for `GET /complaints`:**
+| Method  | Endpoint                     | Roles         | Description                            |
+| ------- | ---------------------------- | ------------- | -------------------------------------- |
+| `POST`  | `/complaints`                | AGENT+        | Create complaint for a customer        |
+| `GET`   | `/complaints`                | VENDOR+       | List complaints (paginated + filtered) |
+| `GET`   | `/complaints/stats`          | TENANT_ADMIN+ | Dashboard stats                        |
+| `GET`   | `/complaints/:id`            | VENDOR+       | Get complaint detail                   |
+| `PATCH` | `/complaints/:id`            | AGENT+        | Update category/description/photos     |
+| `PATCH` | `/complaints/:id/status`     | AGENT+        | Transition complaint status            |
+| `PATCH` | `/complaints/:id/assign`     | TENANT_ADMIN+ | Assign to an agent                     |
+| `GET`   | `/complaints/:id/messages`   | VENDOR+       | Get message thread                     |
+| `POST`  | `/complaints/:id/messages`   | VENDOR+       | Post a message                         |
+| `GET`   | `/complaints/:id/activities` | AGENT+        | Get activity timeline                  |
+
+
+**Query params for** `GET /complaints`**:**
+
 - `page`, `limit` — pagination
 - `search` — searches ref, orderRef, customerName, customerEmail, description
-- `status` — `OPEN` \| `ASSIGNED` \| `IN_PROGRESS` \| `PENDING_VENDOR` \| `RESOLVED` \| `CLOSED` \| `REOPENED`
-- `category` — `WRONG_ITEM_DELIVERED` \| `ITEM_DAMAGED` \| `DIFFERENT_COLOR_OR_SIZE` \| `MISSING_ITEM` \| `OTHER`
-- `priority` — `LOW` \| `MEDIUM` \| `HIGH` \| `CRITICAL`
+- `status` — `OPEN`  `ASSIGNED`  `IN_PROGRESS`  `PENDING_VENDOR`  `RESOLVED`  `CLOSED`  `REOPENED`
+- `category` — `WRONG_ITEM_DELIVERED`  `ITEM_DAMAGED`  `DIFFERENT_COLOR_OR_SIZE`  `MISSING_ITEM`  `OTHER`
+- `priority` — `LOW`  `MEDIUM`  `HIGH`  `CRITICAL`
 - `assignedToId` — filter by agent ID
 - `orderRef` — filter by order reference
-- `sortBy` — `createdAt` \| `updatedAt` \| `priority` \| `status`
-- `sortOrder` — `asc` \| `desc`
+- `sortBy` — `createdAt`  `updatedAt`  `priority`  `status`
+- `sortOrder` — `asc`  `desc`
 
 **Create complaint body:**
+
 ```json
 {
   "orderRef": "ORD-9921",
@@ -478,6 +542,7 @@ All endpoints are prefixed with `/api/v1`.
 ```
 
 **Update status body:**
+
 ```json
 {
   "status": "RESOLVED",
@@ -486,22 +551,30 @@ All endpoints are prefixed with `/api/v1`.
 ```
 
 **Assign body:**
+
 ```json
 { "agentId": "clx7abc123def456" }
 ```
 
+
+
 ### Activities
 
-| Method | Endpoint | Roles | Description |
-|--------|----------|-------|-------------|
-| `GET` | `/activities` | TENANT_ADMIN+ | Tenant-wide audit log |
-| `GET` | `/complaints/:id/activities` | AGENT+ | Complaint timeline |
+
+| Method | Endpoint                     | Roles         | Description           |
+| ------ | ---------------------------- | ------------- | --------------------- |
+| `GET`  | `/activities`                | TENANT_ADMIN+ | Tenant-wide audit log |
+| `GET`  | `/complaints/:id/activities` | AGENT+        | Complaint timeline    |
+
+
+
 
 ### Response Envelope
 
 Every response (success or error) uses a consistent shape:
 
 **Success:**
+
 ```json
 {
   "success": true,
@@ -512,6 +585,7 @@ Every response (success or error) uses a consistent shape:
 ```
 
 **Error:**
+
 ```json
 {
   "success": false,
@@ -524,6 +598,7 @@ Every response (success or error) uses a consistent shape:
 ```
 
 **Paginated list:**
+
 ```json
 {
   "success": true,
@@ -545,6 +620,8 @@ Every response (success or error) uses a consistent shape:
 
 ---
 
+
+
 ## Multi-Tenancy
 
 CCMS uses **schema-based logical tenant isolation** (single schema, tenant-scoped queries):
@@ -557,22 +634,28 @@ CCMS uses **schema-based logical tenant isolation** (single schema, tenant-scope
 
 ---
 
+
+
 ## Security
 
-| Concern | Implementation |
-|---------|---------------|
-| Authentication | JWT Bearer tokens (HS256, configurable expiry) |
-| Password storage | bcrypt with configurable salt rounds (default 12) |
-| Input validation | class-validator whitelist + forbidNonWhitelisted on all DTOs |
-| Role authorization | `RolesGuard` checks `@Roles()` metadata after JWT validation |
-| Tenant isolation | `tenantId` scoped on all queries; `TenantIsolationGuard` for path params |
-| Customer link security | 64-char cryptographically random hex token per complaint |
-| CORS | Configurable allowed origins; defaults to `*` in development |
-| Sensitive fields | `passwordHash` is never included in any select response |
-| Error messages | Generic auth errors ("Invalid email or password") prevent user enumeration |
-| Environment | Joi validation at startup prevents misconfigured deployments |
+
+| Concern                | Implementation                                                             |
+| ---------------------- | -------------------------------------------------------------------------- |
+| Authentication         | JWT Bearer tokens (HS256, configurable expiry)                             |
+| Password storage       | bcrypt with configurable salt rounds (default 12)                          |
+| Input validation       | class-validator whitelist + forbidNonWhitelisted on all DTOs               |
+| Role authorization     | `RolesGuard` checks `@Roles()` metadata after JWT validation               |
+| Tenant isolation       | `tenantId` scoped on all queries; `TenantIsolationGuard` for path params   |
+| Customer link security | 64-char cryptographically random hex token per complaint                   |
+| CORS                   | Configurable allowed origins; defaults to `*` in development               |
+| Sensitive fields       | `passwordHash` is never included in any select response                    |
+| Error messages         | Generic auth errors ("Invalid email or password") prevent user enumeration |
+| Environment            | Joi validation at startup prevents misconfigured deployments               |
+
 
 ---
+
+
 
 ## Testing
 
@@ -588,6 +671,7 @@ pnpm run test:watch
 ```
 
 Tests included:
+
 - `auth.service.spec.ts` — register, login, token generation
 - `complaints.service.spec.ts` — status machine, assignment, not-found handling
 - `pagination.util.spec.ts` — skip/take calculation, meta generation
@@ -595,7 +679,11 @@ Tests included:
 
 ---
 
+
+
 ## Deployment
+
+
 
 ### NeonDB (Recommended)
 
@@ -603,7 +691,9 @@ Tests included:
 2. Copy the connection string into `DATABASE_URL`
 3. Run `pnpm run prisma:migrate:deploy`
 
-### Railway / Render / Fly.io
+
+
+### Railway / Render / [Fly.io](http://Fly.io)
 
 ```bash
 # Set environment variables in your platform dashboard, then:
@@ -611,6 +701,8 @@ pnpm run build
 pnpm run prisma:migrate:deploy
 pnpm run start:prod
 ```
+
+
 
 ### Docker
 
@@ -636,11 +728,3 @@ CMD ["node", "dist/main"]
 
 ---
 
-## Seed Credentials
-
-| Role | Email | Password |
-|------|-------|----------|
-| SUPER_ADMIN | `superadmin@ccms.app` | `Admin@1234` |
-| TENANT_ADMIN | `admin@fastlogistics.com` | `TenantAdmin@1234` |
-
-> ⚠️ Change all seed passwords immediately in any non-local environment.
