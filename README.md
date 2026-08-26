@@ -304,7 +304,7 @@ Complaint (1) ──── (N) Activity
 ### Prerequisites
 
 - Node.js >= 18
-- npm >= 9
+- pnpm >= 9
 - A PostgreSQL database (NeonDB recommended — free tier available at neon.tech)
 
 ### 1. Clone and install
@@ -312,7 +312,7 @@ Complaint (1) ──── (N) Activity
 ```bash
 git clone https://github.com/your-org/ccms-backend.git
 cd ccms-backend
-npm install
+pnpm install
 ```
 
 ### 2. Configure environment
@@ -331,23 +331,23 @@ JWT_SECRET="your-minimum-32-character-secret-key"
 ### 3. Generate Prisma client
 
 ```bash
-npm run prisma:generate
+pnpm run prisma:generate
 ```
 
 ### 4. Run database migrations
 
 ```bash
 # Development — creates migration history
-npm run prisma:migrate:dev
+pnpm run prisma:migrate:dev
 
 # Production — applies existing migrations
-npm run prisma:migrate:deploy
+pnpm run prisma:migrate:deploy
 ```
 
 ### 5. Seed the database
 
 ```bash
-npm run prisma:seed
+pnpm run prisma:seed
 ```
 
 This creates:
@@ -358,11 +358,11 @@ This creates:
 
 ```bash
 # Development (hot reload)
-npm run start:dev
+pnpm run start:dev
 
 # Production
-npm run build
-npm run start:prod
+pnpm run build
+pnpm run start:prod
 ```
 
 ### 7. Open Swagger docs
@@ -578,13 +578,13 @@ CCMS uses **schema-based logical tenant isolation** (single schema, tenant-scope
 
 ```bash
 # Run all unit tests
-npm test
+pnpm test
 
 # Run tests with coverage report
-npm run test:cov
+pnpm run test:cov
 
 # Run tests in watch mode during development
-npm run test:watch
+pnpm run test:watch
 ```
 
 Tests included:
@@ -601,15 +601,15 @@ Tests included:
 
 1. Create a free database at [neon.tech](https://neon.tech)
 2. Copy the connection string into `DATABASE_URL`
-3. Run `npm run prisma:migrate:deploy`
+3. Run `pnpm run prisma:migrate:deploy`
 
 ### Railway / Render / Fly.io
 
 ```bash
 # Set environment variables in your platform dashboard, then:
-npm run build
-npm run prisma:migrate:deploy
-npm run start:prod
+pnpm run build
+pnpm run prisma:migrate:deploy
+pnpm run start:prod
 ```
 
 ### Docker
@@ -617,11 +617,12 @@ npm run start:prod
 ```dockerfile
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+RUN corepack enable pnpm
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npx prisma generate
-RUN npm run build
+RUN pnpm exec prisma generate
+RUN pnpm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
