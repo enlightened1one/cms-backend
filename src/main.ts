@@ -43,7 +43,8 @@ async function bootstrap() {
   );
 
   // ── Swagger / OpenAPI ─────────────────────────────────────
-  if (nodeEnv !== 'production') {  // ── Swagger / OpenAPI (enabled in all environments, incl. production) ──
+
+  // ── Swagger / OpenAPI (enabled in all environments, incl. production) ──
   const swaggerConfig = new DocumentBuilder()
     .setTitle(appName)
     .setDescription(
@@ -90,7 +91,7 @@ async function bootstrap() {
     customSiteTitle: `${appName} — API Docs`,
   });
 
-  logger.log(`📖 Swagger docs: http://localhost:${port}/${apiPrefix}/docs`);}
+  logger.log(`📖 Swagger docs: http://localhost:${port}/${apiPrefix}/docs`);
 
   // ── Graceful shutdown ─────────────────────────────────────
   app.enableShutdownHooks();
