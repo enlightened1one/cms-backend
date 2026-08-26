@@ -43,55 +43,54 @@ async function bootstrap() {
   );
 
   // ── Swagger / OpenAPI ─────────────────────────────────────
-  if (nodeEnv !== 'production') {
-    const swaggerConfig = new DocumentBuilder()
-      .setTitle(appName)
-      .setDescription(
-        `## CCMS — Customer Complaint Management System\n\n` +
-          `Multi-tenant SaaS backend for managing logistics complaints end-to-end.\n\n` +
-          `### Authentication\n` +
-          `All endpoints (except \`/auth/register\` and \`/auth/login\`) require a Bearer JWT token.\n\n` +
-          `### Tenant Isolation\n` +
-          `All data is scoped to the authenticated user's tenant. Agents can only see complaints within their own organisation.\n\n` +
-          `### Status Machine\n` +
-          `OPEN → ASSIGNED → IN_PROGRESS → PENDING_VENDOR → RESOLVED → CLOSED\n` +
-          `RESOLVED → REOPENED → IN_PROGRESS`,
-      )
-      .setVersion('1.0')
-      .addBearerAuth(
-        {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          name: 'Authorization',
-          description: 'Enter your JWT access token',
-          in: 'header',
-        },
-        'JWT-auth',
-      )
-      .addTag('Authentication', 'Register, login, and retrieve authenticated user profile')
-      .addTag('Tenants', 'Organisation (tenant) management — SUPER_ADMIN only')
-      .addTag('Users', 'User management within a tenant')
-      .addTag('Complaints', 'Full complaint lifecycle — create, assign, update status, resolve')
-      .addTag('Activities', 'Immutable audit log of all system events')
-      .build();
-
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-
-    SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
-        tagsSorter: 'alpha',
-        operationsSorter: 'alpha',
-        docExpansion: 'none',
-        filter: true,
-        showExtensions: true,
+  if (nodeEnv !== 'production') {  // ── Swagger / OpenAPI (enabled in all environments, incl. production) ──
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle(appName)
+    .setDescription(
+      `## CCMS — Customer Complaint Management System\n\n` +
+        `Multi-tenant SaaS backend for managing logistics complaints end-to-end.\n\n` +
+        `### Authentication\n` +
+        `All endpoints (except \`/auth/register\` and \`/auth/login\`) require a Bearer JWT token.\n\n` +
+        `### Tenant Isolation\n` +
+        `All data is scoped to the authenticated user's tenant. Agents can only see complaints within their own organisation.\n\n` +
+        `### Status Machine\n` +
+        `OPEN → ASSIGNED → IN_PROGRESS → PENDING_VENDOR → RESOLVED → CLOSED\n` +
+        `RESOLVED → REOPENED → IN_PROGRESS`,
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Enter your JWT access token',
+        in: 'header',
       },
-      customSiteTitle: `${appName} — API Docs`,
-    });
+      'JWT-auth',
+    )
+    .addTag('Authentication', 'Register, login, and retrieve authenticated user profile')
+    .addTag('Tenants', 'Organisation (tenant) management — SUPER_ADMIN only')
+    .addTag('Users', 'User management within a tenant')
+    .addTag('Complaints', 'Full complaint lifecycle — create, assign, update status, resolve')
+    .addTag('Activities', 'Immutable audit log of all system events')
+    .build();
 
-    logger.log(`📖 Swagger docs: http://localhost:${port}/${apiPrefix}/docs`);
-  }
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+
+  SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+      docExpansion: 'none',
+      filter: true,
+      showExtensions: true,
+    },
+    customSiteTitle: `${appName} — API Docs`,
+  });
+
+  logger.log(`📖 Swagger docs: http://localhost:${port}/${apiPrefix}/docs`);}
 
   // ── Graceful shutdown ─────────────────────────────────────
   app.enableShutdownHooks();
