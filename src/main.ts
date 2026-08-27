@@ -42,8 +42,6 @@ async function bootstrap() {
     }),
   );
 
-  // ── Swagger / OpenAPI ─────────────────────────────────────
-
   // ── Swagger / OpenAPI (enabled in all environments, incl. production) ──
   const swaggerConfig = new DocumentBuilder()
     .setTitle(appName)
@@ -89,6 +87,11 @@ async function bootstrap() {
       showExtensions: true,
     },
     customSiteTitle: `${appName} — API Docs`,
+    customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.32.13/swagger-ui.css',
+    customJs: [
+      'https://unpkg.com/swagger-ui-dist@5.32.13/swagger-ui-bundle.js',
+      'https://unpkg.com/swagger-ui-dist@5.32.13/swagger-ui-standalone-preset.js',
+    ],
   });
 
   logger.log(`📖 Swagger docs: http://localhost:${port}/${apiPrefix}/docs`);
