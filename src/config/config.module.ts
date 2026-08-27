@@ -14,12 +14,20 @@ import appConfig from './app.config';
       isGlobal: true,
       load: [appConfig],
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
-        PORT: Joi.number().default(3000),
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test')
+          .default('development'),
+        
+        // Treat empty string "" as undefined so .default(3000) kicks in
+        PORT: Joi.number().empty('').default(3000),
+
         DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().min(32).required(),
         JWT_EXPIRES_IN: Joi.string().default('7d'),
-        BCRYPT_SALT_ROUNDS: Joi.number().default(12),
+        
+        // Treat empty string "" as undefined for other numbers as well
+        BCRYPT_SALT_ROUNDS: Joi.number().empty('').default(12),
+
         FRONTEND_URL: Joi.string().uri().default('http://localhost:5173'),
         ALLOWED_ORIGINS: Joi.string().default('http://localhost:3000'),
       }),
