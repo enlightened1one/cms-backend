@@ -4,6 +4,7 @@
 
 ---
 
+
 ## Table of Contents
 
 1. [Overview](#overview)
@@ -421,7 +422,7 @@ http://localhost:3000/api/v1/docs
 | Variable             | Required | Default                 | Description                                   |
 | -------------------- | -------- | ----------------------- | --------------------------------------------- |
 | `NODE_ENV`           | No       | `development`           | `development` | `production` | `test`         |
-| `PORT`               | No       | `3000`                  | HTTP port                                     |
+| `PORT`               | No       | `3000`                  | HTTP port; falls back to `5001` if `3000` is busy |
 | `DATABASE_URL`       | **Yes**  | —                       | PostgreSQL connection string                  |
 | `JWT_SECRET`         | **Yes**  | —                       | Min 32 characters. Use a strong random string |
 | `JWT_EXPIRES_IN`     | No       | `7d`                    | Token lifetime (e.g. `1d`, `7d`, `30d`)       |
@@ -727,4 +728,3 @@ CMD ["node", "dist/main"]
 ```
 
 ---
-

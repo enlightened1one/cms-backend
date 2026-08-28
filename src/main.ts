@@ -11,7 +11,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('app.port') ?? 3001;
+  let port = configService.get<number>('app.port') ?? 3000;
   const apiPrefix = configService.get<string>('app.apiPrefix') ?? 'api/v1';
   const allowedOrigins = configService.get<string[]>('app.allowedOrigins') ?? ['*'];
   const appName = configService.get<string>('app.name') ?? 'CCMS API';
@@ -94,14 +94,32 @@ async function bootstrap() {
     ],
   });
 
-  logger.log(`📖 Swagger docs: http://localhost:${port}/${apiPrefix}/docs`);
-
   // ── Graceful shutdown ─────────────────────────────────────
   app.enableShutdownHooks();
 
-  await app.listen(port);
+  try {
+    await app.listen(port);
+  } catch (err) {
+    if (port !== 3000 || !isAddressInUseError(err)) {
+      throw err;
+    }
+
+    port = 5001;
+    await app.listen(port);
+  }
+
+  logger.log(`📖 Swagger docs: http://localhost:${port}/${apiPrefix}/docs`);
   logger.log(`🚀 ${appName} running on port ${port} [${nodeEnv}]`);
   logger.log(`🔗 Base URL: http://localhost:${port}/${apiPrefix}`);
+}
+
+function isAddressInUseError(error: unknown): error is NodeJS.ErrnoException {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === 'EADDRINUSE'
+  );
 }
 
 bootstrap().catch((err) => {
